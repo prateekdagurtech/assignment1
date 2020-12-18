@@ -1,0 +1,23 @@
+{
+  "name": "assignment1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "indexs.js",
+  "dependencies": {
+    "mongodb": "^3.6.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prateekdagurtech/assignment1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prateekdagurtech/assignment1/issues"
+  },
+  "homepage": "https://github.com/prateekdagurtech/assignment1#readme"
+}

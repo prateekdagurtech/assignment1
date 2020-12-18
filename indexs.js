@@ -18,10 +18,14 @@ async function run() {
             profile.userId = usersData.insertedId;
             const profilesData = await userDetails.insertOne(profile)
             return 'User created succesully'
+
         }
+
+    
         let users = [{
             "firstname": "vivek",
             "lastname": "dagur",
+            "age": 25,
             "email": "vivekdagur8@gmail.com",
             "password": "react123",
             "dob": "222",
@@ -30,6 +34,7 @@ async function run() {
         {
             "firstname": "prateek",
             "lastname": "dagur",
+            "age": 23,
             "email": "prateekdagur8@gmail.com",
             "password": "node123",
             "dob": "222",
@@ -38,6 +43,7 @@ async function run() {
         {
             "firstname": "ankur",
             "lastname": "paliwal",
+            "age": 24,
             "email": "anku78@gmail.com",
             "password": "ank123",
             "dob": "222",
@@ -48,6 +54,7 @@ async function run() {
         {
             "firstname": "divyanshu",
             "lastname": "sharma",
+            "age": 26,
             "email": "dv3456@gmail.com",
             "password": "dvw123",
             "dob": "222",
@@ -57,17 +64,20 @@ async function run() {
         {
             "firstname": "kapil",
             "lastname": "dagur",
+            "age": 27,
             "email": "kapilch@gmail.com",
             "password": "node123",
             "dob": "222",
             "mobile": "1w1"
-        }]
+        }
+    ]
 
         let finaldata = []
         for (let data of users) {
             let user = {
                 firstname: data.firstname,
                 lastname: data.lastname,
+                age: data.age,
                 email: data.email,
                 password: data.password
             }
@@ -81,8 +91,17 @@ async function run() {
         
         const userDoc = await userData.find({}).toArray();
         const userDocs = await userDetails.find({}).toArray();
+        var sum=0;
+        for(var i=0;i<users.length; i++) {
+            sum += users[i].age;
+           average = sum/users.length;
+        }
+        averageAge = average
+       console.log(averageAge)
+        const result = await userData.deleteMany({age: { $gt: 25 }});
+        
         await client.close();
-    } catch (err) {
+        } catch (err) {
         console.log(err.stack);
     }
 }
