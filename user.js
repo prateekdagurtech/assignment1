@@ -25,6 +25,7 @@ const usersSchema = new Schema({
         required: true,
         bcrypt: true,
     },
+
     salt: {
         type: String,
         required: true,
@@ -32,6 +33,5 @@ const usersSchema = new Schema({
     }
 })
 const Usersdata = mongoose.model('users', usersSchema);
-
 
 module.exports = Usersdata
