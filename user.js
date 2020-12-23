@@ -25,7 +25,11 @@ const usersSchema = new Schema({
         required: true,
         bcrypt: true,
     },
-
+    salt: {
+        type: String,
+        required: true,
+        bcrypt: true,
+    }
 })
 const Usersdata = mongoose.model('users', usersSchema);
 
