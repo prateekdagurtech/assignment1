@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const User = require('./user');
-var url = "mongodb+srv://prateek:java1234@cluster0.vkgzh.mongodb.net/nodedb?retryWrites=true&w=majority"
+let url = "mongodb+srv://prateek:java1234@cluster0.vkgzh.mongodb.net/nodedb?retryWrites=true&w=majority"
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
@@ -9,9 +9,6 @@ var app = express()
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
-
 
 const port = process.env.PORT || 3000;
 app.use(express.json());
@@ -21,10 +18,8 @@ app.use(express.json());
 app.post('/user/register', async (req, res) => {
 
     try {
-        
 
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hash = bcrypt.hashSync(myPlaintextPassword, salt);
+        const hash = bcrypt.hashSync(req.body.password, saltRounds);
         req.body.password = hash
         const user = new User(req.body);
         let data = await user.save();

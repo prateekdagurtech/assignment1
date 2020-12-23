@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
-const validator = require('validator')
+
 const { Schema } = mongoose;
 
-const blogSchema = new Schema({
+const usersSchema = new Schema({
     firstname: {
         type: String
     },
@@ -25,13 +25,9 @@ const blogSchema = new Schema({
         required: true,
         bcrypt: true,
     },
-    confirmpassword: {
-        type: String,
-        required: true,
-        bycrypt: true,
-    }
+
 })
-const Usersdata = mongoose.model('users', blogSchema);
-console.log(Usersdata);
+const Usersdata = mongoose.model('users', usersSchema);
+
 
 module.exports = Usersdata
