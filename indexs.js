@@ -2,7 +2,6 @@ require("dotenv").config()
 const express = require('express')
 const mongoose = require('mongoose')
 const Users = require('./user');
-//const Userlogin = require('./user');
 let url = process.env.URL
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -31,16 +30,15 @@ app.post('/user/register', async (req, res) => {
 
 app.post('/user/login', async (req, res) => {
     try {
-        const user = new Users(req.body);
-        let data = await user.save();
-        res.send(data);
-    }
-    catch (err) {
-        res.status(500).send(err);
+        const user = await Users.findByCredentials(req.body.username, req.body.password)
+        res.send(user)
+    } catch (e) {
+        res.status(400).send(e)
     }
 });
 
-app.get('/users/register', async (req, res) => {
+
+app.get('/users/registered', async (req, res) => {
     const user = await Users.find({});
 
     try {
@@ -49,7 +47,6 @@ app.get('/users/register', async (req, res) => {
         res.status(500).send(err);
     }
 });
-
 
 
 app.listen(port, () => console.log(`Express server currently running on port ${port}`));
