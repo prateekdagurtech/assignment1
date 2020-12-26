@@ -1,6 +1,8 @@
 require("dotenv").config()
 const express = require('express')
 const mongoose = require('mongoose')
+const auth = require('./auth')
+const jwt = require('jsonwebtoken')
 const Users = require('./user');
 let url = process.env.URL
 
@@ -13,6 +15,7 @@ const saltRounds = 10;
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+
 app.post('/user/register', async (req, res) => {
     try {
         const salt = bcrypt.genSaltSync(saltRounds);
@@ -32,9 +35,9 @@ app.post('/user/register', async (req, res) => {
 app.post('/user/login', async (req, res) => {
     try {
         const user = await findByCredentials(req.body.username, req.body.password)
-
+        const token = await user.generateAuthToken()
         req.body.userId = user._id
-        res.send(req.body.userId)
+        res.send(req.body.userId, token)
     } catch (e) {
         res.status(400).send(e.message)
     }
@@ -54,6 +57,11 @@ findByCredentials = async (username, password) => {
     return user
 }
 
+generateAuthToken = async function () {
+    const token = jwt.sign({ _id: req.body.userId.toString() }, 'mytoken')
+    return token
+}
+
 
 app.get('/users/registered', async (req, res) => {
     const user = await Users.find({});
@@ -65,14 +73,11 @@ app.get('/users/registered', async (req, res) => {
     }
 });
 
-app.get('/users/get/', async (req, res) => {
-    const user = await Users.find({});
+app.get('/users/get/', auth, async (req, res) => {
+    res.send(req.user)
 
-    try {
-        res.send(user);
-    } catch (err) {
-        res.status(500).send(err);
-    }
+
 });
 
 app.listen(port, () => console.log(`Express server currently running on port ${port}`));
+
