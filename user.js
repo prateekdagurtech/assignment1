@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { Schema } = mongoose;
+const jwt = require('jsonwebtoken')
 
 const usersSchema = new Schema({
     firstname: {
@@ -33,21 +34,29 @@ const usersSchema = new Schema({
     }
 })
 
-usersSchema.statics.findByCredentials = async (username, password) => {
-    const user = await Usersdata.findOne({ username })
+// usersSchema.methods.getAuthToken = async function () {
+//     const user = this
+//     const token = jwt.sign({ _id: user._id.toString() }, 'mytoken')
 
-    if (!user) {
-        throw new Error("No such email")
-    }
+//     user.tokens = user.tokens.concat({ token })
+//     await user.save()
+// }
 
-    isMatch = await bcrypt.compare(password, user.password)
+// usersSchema.statics.findByCredentials = async (username, password) => {
+//     const user = await Usersdata.findOne({ username })
 
-    if (!isMatch) {
-        throw new Error("No any matches")
-    }
+//     if (!user) {
+//         throw new Error("No such username")
+//     }
 
-    return user
-}
+//     isMatch = await bcrypt.compare(password, user.password)
+
+//     if (!isMatch) {
+//         throw new Error("No any matches of password")
+//     }
+
+//     return user
+// }
 
 const Usersdata = mongoose.model('users', usersSchema);
 
