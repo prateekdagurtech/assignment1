@@ -1,9 +1,7 @@
 require("dotenv").config()
 const express = require('express')
-ObjectID = require('mongodb').ObjectID
 const mongoose = require('mongoose')
 const Users = require('./user');
-const jwt = require('jsonwebtoken')
 let url = process.env.URL
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -77,7 +75,4 @@ app.get('/users/get/', async (req, res) => {
     }
 });
 
-// const authFunction = async () => {
-//     const token = jwt
-// }
 app.listen(port, () => console.log(`Express server currently running on port ${port}`));
