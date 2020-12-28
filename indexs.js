@@ -1,8 +1,8 @@
+
 require("dotenv").config()
 const express = require('express')
 const mongoose = require('mongoose')
-const auth = require('./auth')
-const jwt = require('jsonwebtoken')
+//const auth = require('./auth')
 const Users = require('./user');
 let url = process.env.URL
 
@@ -35,9 +35,11 @@ app.post('/user/register', async (req, res) => {
 app.post('/user/login', async (req, res) => {
     try {
         const user = await findByCredentials(req.body.username, req.body.password)
-        const token = await user.generateAuthToken()
         req.body.userId = user._id
-        res.send(req.body.userId, token)
+        res.json({
+            token: req.body.userId
+        })
+
     } catch (e) {
         res.status(400).send(e.message)
     }
@@ -57,14 +59,10 @@ findByCredentials = async (username, password) => {
     return user
 }
 
-generateAuthToken = async function () {
-    const token = jwt.sign({ _id: req.body.userId.toString() }, 'mytoken')
-    return token
-}
 
 
 app.get('/users/registered', async (req, res) => {
-    const user = await Users.find({});
+    const user = await Users.find();
 
     try {
         res.send(user);
@@ -73,9 +71,10 @@ app.get('/users/registered', async (req, res) => {
     }
 });
 
-app.get('/users/get/', auth, async (req, res) => {
-    res.send(req.user)
+app.get('/users/get/', async (req, res) => {
 
+    const user = await Users.findOne({ "_id": req.headers.token })
+    res.send(user);
 
 });
 

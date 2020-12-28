@@ -29,7 +29,8 @@ const usersSchema = new Schema({
         type: String,
         required: true,
         bcrypt: true,
-    }
+    },
+
 })
 
 const Usersdata = mongoose.model('users', usersSchema);
