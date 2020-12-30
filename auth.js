@@ -1,21 +1,33 @@
+const Users = require('./user');
+module.exports.auth = async (req, res, next) => {
+    try {
+        const token = req.headers.token
+        const user = await Users.findOne({ "_id": token })
+        if (!user) {
+            throw new Error("no user")
+        }
+        req.user = user
+        next()
 
-// const User = require('./indexs')
-// const auth = async (req, res, next) => {
-//     try {
-//         const token = req.header('authorization').replace('Bearer', '')
-//         const decoded = jwt.verify(token, 'mytoken')
-//         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
+    } catch (e) {
+        res.status(401).send(e.message)
+    }
 
-//         if (!user) {
-//             throw new Error()
-//         }
-//         req.user = user
-//         next()
+}
 
-//     } catch (e) {
-//         res.status(401).send({ error: 'please authenticate' })
-//     }
+module.exports.auth1 = async (req, res, next) => {
+    try {
+        const token = req.headers.token
+        const deletedUser = await Users.findOneAndDelete({ "_id": token })
+        if (!deletedUser) {
+            throw new Error("did not delete user")
+        }
+        req.user = deletedUser
+        next()
 
-// }
+    } catch (e) {
+        res.status(401).send(e.message)
+    }
 
-// module.export = auth
+}
+

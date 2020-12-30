@@ -2,7 +2,7 @@
 require("dotenv").config()
 const express = require('express')
 const mongoose = require('mongoose')
-//const auth = require('./auth')
+const auth_xyz = require('./auth')
 const Users = require('./user');
 let url = process.env.URL
 
@@ -71,12 +71,19 @@ app.get('/users/registered', async (req, res) => {
     }
 });
 
-app.get('/users/get/', async (req, res) => {
-
-    const user = await Users.findOne({ "_id": req.headers.token })
-    res.send(user);
+app.get('/users/get/', auth_xyz.auth, async (req, res) => {
+    // const user = await Users.find()
+    res.send(req.user);
 
 });
 
-app.listen(port, () => console.log(`Express server currently running on port ${port}`));
+app.put('/user/delete', auth_xyz.auth1, async (req, res) => {
+    if (req.user) {
+        res.json({ message: 'successully deleted' })
 
+    }
+});
+
+
+
+app.listen(port, () => console.log(`Express server currently running on port ${port}`));
