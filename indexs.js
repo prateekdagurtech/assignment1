@@ -2,7 +2,7 @@
 require("dotenv").config()
 const express = require('express')
 const mongoose = require('mongoose')
-const auth_xyz = require('./auth')
+const userAuthentication = require('./auth')
 const Users = require('./user');
 let url = process.env.URL
 
@@ -59,31 +59,34 @@ findByCredentials = async (username, password) => {
     return user
 }
 
-
-
-app.get('/users/registered', async (req, res) => {
-    const user = await Users.find();
-
-    try {
-        res.send(user);
-    } catch (err) {
-        res.status(500).send(err);
-    }
-});
-
-app.get('/users/get/', auth_xyz.auth, async (req, res) => {
-    // const user = await Users.find()
+app.get('/users/get/', userAuthentication.auth, async (req, res) => {
     res.send(req.user);
 
 });
 
-app.put('/user/delete', auth_xyz.auth1, async (req, res) => {
-    if (req.user) {
-        res.json({ message: 'successully deleted' })
+app.put('/user/delete', userAuthentication.auth, async (req, res) => {
+    try {
 
+        const token = req.headers.token
+        const deleteUser = await Users.findOneAndDelete({ "_id": token })
+        if (deleteUser) {
+            res.json({ message: 'successully deleted' })
+        }
+    } catch (e) {
+        res.status(401).send(e.message)
     }
 });
+app.get('/user/get', async function (req, res) {
 
+    per_page = parseInt(req.query.per_page)
+    page_no = parseInt(req.query.page_no)
+    var pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1)
+    }
+    users = await Users.find().limit(pagination.limit).skip(pagination.skip).exec()
+    res.send(users)
+});
 
 
 app.listen(port, () => console.log(`Express server currently running on port ${port}`));
