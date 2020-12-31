@@ -1,110 +1,89 @@
 
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb+srv://prateek:java1234@cluster0.vkgzh.mongodb.net/nodedb?retryWrites=true&w=majority";
+require("dotenv").config()
+const express = require('express')
+const mongoose = require('mongoose')
+const userAuthentication = require('./auth')
+const Users = require('./user');
+let url = process.env.URL
 
-const client = new MongoClient(url);
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
-const dbName = "nodedb";
+let app = express()
 
-async function run() {
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+
+app.post('/user/register', async (req, res) => {
     try {
-        await client.connect();
-        console.log("Connected correctly to server");
-        const db = client.db(dbName);
-        const userData = db.collection("users");
-        const userDetails = db.collection("usersProfile");
-        async function create(user,profile){
-            const usersData = await userData.insertOne(user);
-            profile.userId = usersData.insertedId;
-            const profilesData = await userDetails.insertOne(profile)
-            return 'User created succesully'
-
-        }
-
-    
-        let users = [{
-            "firstname": "vivek",
-            "lastname": "dagur",
-            "age": 25,
-            "email": "vivekdagur8@gmail.com",
-            "password": "react123",
-            "dob": "222",
-            "mobile": "1w1"
-        },
-        {
-            "firstname": "prateek",
-            "lastname": "dagur",
-            "age": 23,
-            "email": "prateekdagur8@gmail.com",
-            "password": "node123",
-            "dob": "222",
-            "mobile": "1w1"
-        },
-        {
-            "firstname": "ankur",
-            "lastname": "paliwal",
-            "age": 24,
-            "email": "anku78@gmail.com",
-            "password": "ank123",
-            "dob": "222",
-            "mobile": "1w1"
-
-
-        },
-        {
-            "firstname": "divyanshu",
-            "lastname": "sharma",
-            "age": 26,
-            "email": "dv3456@gmail.com",
-            "password": "dvw123",
-            "dob": "222",
-            "mobile": "1w1"
-        },
-
-        {
-            "firstname": "kapil",
-            "lastname": "dagur",
-            "age": 27,
-            "email": "kapilch@gmail.com",
-            "password": "node123",
-            "dob": "222",
-            "mobile": "1w1"
-        }
-    ]
-
-        let finaldata = []
-        for (let data of users) {
-            let user = {
-                firstname: data.firstname,
-                lastname: data.lastname,
-                age: data.age,
-                email: data.email,
-                password: data.password
-            }
-            let profile = {
-                'dob': data.dob,
-                'mobile': data.mobile
-            }
-            finaldata.push(create(user,profile))
-        }
-        await Promise.all(finaldata)
-        
-        const userDoc = await userData.find({}).toArray();
-        const userDocs = await userDetails.find({}).toArray();
-        var sum=0;
-        for(var i=0;i<users.length; i++) {
-            sum += users[i].age;
-           average = sum/users.length;
-        }
-        averageAge = average
-       console.log(averageAge)
-        const result = await userData.deleteMany({age: { $gt: 25 }});
-        
-        await client.close();
-        } catch (err) {
-        console.log(err.stack);
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hash = bcrypt.hashSync(req.body.password, salt);
+        req.body.password = hash
+        req.body.salt = salt
+        const user = new Users(req.body);
+        let data = await user.save();
+        res.send(data);
     }
+    catch (err) {
+        res.status(500).send(err);
+    }
+});
+
+
+app.post('/user/login', async (req, res) => {
+    try {
+        const user = await findByCredentials(req.body.username, req.body.password)
+        req.body.userId = user._id
+        res.json({
+            token: req.body.userId
+        })
+
+    } catch (e) {
+        res.status(400).send(e.message)
+    }
+});
+findByCredentials = async (username, password) => {
+    const user = await Users.findOne({ username })
+
+    if (!user) {
+        throw new Error("No such username")
+    }
+
+    isMatch = await bcrypt.compare(password, user.password)
+
+    if (!isMatch) {
+        throw new Error("No any matches of password")
+    }
+    return user
 }
-run().catch(console.dir);
+
+app.get('/users/get/', userAuthentication.auth, async (req, res) => {
+    res.send(req.user);
+});
+
+app.put('/user/delete', userAuthentication.auth, async (req, res) => {
+    try {
+
+        const token = req.headers.token
+        const deleteUser = await Users.findOneAndDelete({ "_id": token })
+        res.json({ message: 'successully deleted' })
+    } catch (e) {
+        res.status(401).send(e.message)
+    }
+});
+app.get('/user/get', async function (req, res) {
+
+    const per_page = parseInt(req.query.per_page) || 3
+    const page_no = parseInt(req.query.page_no) || 1
+    var pagination = {
+        limit: per_page,
+        skip: per_page * (page_no - 1)
+    }
+    users = await Users.find().limit(pagination.limit).skip(pagination.skip)
+    res.send(users)
+});
 
 
+app.listen(port, () => console.log(`Express server currently running on port ${port}`));
