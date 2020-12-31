@@ -61,7 +61,6 @@ findByCredentials = async (username, password) => {
 
 app.get('/users/get/', userAuthentication.auth, async (req, res) => {
     res.send(req.user);
-
 });
 
 app.put('/user/delete', userAuthentication.auth, async (req, res) => {
@@ -69,22 +68,20 @@ app.put('/user/delete', userAuthentication.auth, async (req, res) => {
 
         const token = req.headers.token
         const deleteUser = await Users.findOneAndDelete({ "_id": token })
-        if (deleteUser) {
-            res.json({ message: 'successully deleted' })
-        }
+        res.json({ message: 'successully deleted' })
     } catch (e) {
         res.status(401).send(e.message)
     }
 });
 app.get('/user/get', async function (req, res) {
 
-    per_page = parseInt(req.query.per_page)
-    page_no = parseInt(req.query.page_no)
+    const per_page = parseInt(req.query.per_page) || 3
+    const page_no = parseInt(req.query.page_no) || 1
     var pagination = {
         limit: per_page,
         skip: per_page * (page_no - 1)
     }
-    users = await Users.find().limit(pagination.limit).skip(pagination.skip).exec()
+    users = await Users.find().limit(pagination.limit).skip(pagination.skip)
     res.send(users)
 });
 
